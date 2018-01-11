@@ -23,10 +23,11 @@
 
 (defun lcal:render()
   (interactive)
+  (setq buffer-read-only nil)
   (erase-buffer)
   (setq command (concat "licham " "-d " (lcal:get-date-string)))
   (shell-command command lcal:buffer-name)
-  (ansi-color-apply-on-region (point-min) (point-max))
+  (setq buffer-read-only t)
   )
 
 (defun lcal:show-calendar-buffer()
@@ -40,10 +41,8 @@
 
 (defun lcal:mode()
   (interactive)
-  ;; (setq buffer-read-only t)
   (kill-all-local-variables)
   (use-local-map lcal:mode-map)
-  (setq lcal:mode-map nil)
   (setq mode-name "*Lunar Calendar*")
   (setq major-mode 'lcal:mode)
   (run-hooks 'lcal:mode-hook))
@@ -88,6 +87,10 @@
   (setq lcal:year-offset (+ lcal:year-offset 1))
   (lcal:render))
 
+(defun lcal:quit()
+  (interactive)
+  (kill-buffer lcal:buffer-name))
+
 (if lcal:mode-map
     nil
   (let ((map (make-sparse-keymap)))
@@ -107,6 +110,7 @@
     (define-key map (kbd "<C-down>") 'lcal:next-year)
     (define-key map (kbd "<C-left>") 'lcal:prev-month)
     (define-key map (kbd "<C-right>") 'lcal:next-month)
+    (define-key map (kbd "q") 'lcal:quit)
     (setq lcal:mode-map map)))
 
 (provide 'lcal)
